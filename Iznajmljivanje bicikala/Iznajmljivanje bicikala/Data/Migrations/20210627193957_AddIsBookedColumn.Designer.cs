@@ -4,20 +4,40 @@ using Iznajmljivanje_bicikala.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Iznajmljivanje_bicikala.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210627193957_AddIsBookedColumn")]
+    partial class AddIsBookedColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.6")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("ApplicationUserBicycle", b =>
+                {
+                    b.Property<int>("BicyclesId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UsersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsBooked")
+                        .HasColumnType("bit");
+
+                    b.HasKey("BicyclesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("ApplicationUserBicycle");
+                });
 
             modelBuilder.Entity("Iznajmljivanje_bicikala.Models.ApplicationUser", b =>
                 {
@@ -101,24 +121,6 @@ namespace Iznajmljivanje_bicikala.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Bicycles");
-                });
-
-            modelBuilder.Entity("Iznajmljivanje_bicikala.Models.UserBicycle", b =>
-                {
-                    b.Property<int>("BicycleId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsBooked")
-                        .HasColumnType("bit");
-
-                    b.HasKey("BicycleId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserBicycle");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -252,23 +254,19 @@ namespace Iznajmljivanje_bicikala.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Iznajmljivanje_bicikala.Models.UserBicycle", b =>
+            modelBuilder.Entity("ApplicationUserBicycle", b =>
                 {
-                    b.HasOne("Iznajmljivanje_bicikala.Models.Bicycle", "Bicycle")
-                        .WithMany("UserBicycles")
-                        .HasForeignKey("BicycleId")
+                    b.HasOne("Iznajmljivanje_bicikala.Models.Bicycle", null)
+                        .WithMany()
+                        .HasForeignKey("BicyclesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Iznajmljivanje_bicikala.Models.ApplicationUser", "User")
-                        .WithMany("UserBicycles")
-                        .HasForeignKey("UserId")
+                    b.HasOne("Iznajmljivanje_bicikala.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Bicycle");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -320,16 +318,6 @@ namespace Iznajmljivanje_bicikala.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Iznajmljivanje_bicikala.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("UserBicycles");
-                });
-
-            modelBuilder.Entity("Iznajmljivanje_bicikala.Models.Bicycle", b =>
-                {
-                    b.Navigation("UserBicycles");
                 });
 #pragma warning restore 612, 618
         }

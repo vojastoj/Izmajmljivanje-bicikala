@@ -1,0 +1,46 @@
+﻿@model Iznajmljivanje_bicikala.ViewModels.BicycleViewModel
+
+@{
+    ViewData["Title"] = "Rezervacije";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Rezervacije</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Bike.Brand)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Bike.ProductionYear)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var item in Model.Bicycles)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Brand)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductionYear)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Detalji</a> |
+                    @{
+                        if (User.IsInRole("User"))
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.Id">Otkazi</a>
+                        }
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -13,11 +13,8 @@
             <div class="form-group">
                 <label asp-for="Bike.Brand" class="control-label"></label>
                 <input asp-for="Bike.Brand" class="form-control" />
-
             </div>
         </div>
-
-
 
         <div class="col-md-4">
             <div class="form-group">
@@ -27,14 +24,13 @@
     </div>
 </form>
 @{
-    if (User.Identity.IsAuthenticated)
+    if (User.IsInRole("Admin"))
     {
-    <p>
-        <a asp-action="Create">Kreiraj novi</a>
-    </p>
+        <p>
+            <a asp-action="Create">Dodaj novi</a>
+        </p>
     }
 }
-
 
 <table class="table">
     <thead>
@@ -62,7 +58,7 @@
                 </td>
                 <td>
                     @{
-                        if (User.Identity.IsAuthenticated)
+                        if (User.IsInRole("User"))
                         {
                             <a asp-action="Booking" asp-route-id="@item.Id">Iznajmi</a> @("|")
                         }

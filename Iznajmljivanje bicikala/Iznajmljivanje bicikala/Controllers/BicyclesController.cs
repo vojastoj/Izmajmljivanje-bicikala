@@ -22,33 +22,55 @@ namespace Iznajmljivanje_bicikala.Controllers
             _context = context;
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> Booking(int id)
         {
             var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var user = _context.Users.FirstOrDefault(e => e.Id == userId);
-            var bike = _context.Bicycles.FirstOrDefault(e => e.Id == id);
-            bike.Users.Add(user);
+            var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == userId);
+            var bike = await _context.Bicycles.FirstOrDefaultAsync(e => e.Id == id);
+
+            var bikeUser = await _context.Set<UserBicycle>().FirstOrDefaultAsync(e => e.BicycleId == id && e.UserId == userId);
+            if (bikeUser == default)
+            {
+                bikeUser = new UserBicycle
+                {
+                    Bicycle = bike,
+                    BicycleId = id,
+                    User = user,
+                    UserId = userId,
+                    IsBooked = true
+                };
+
+                _context.Set<UserBicycle>().Add(bikeUser);
+            }
+            else
+            {
+                bikeUser.IsBooked = true;
+            }
+
             _context.SaveChanges();
 
             return RedirectToAction(nameof(Index));
-    }
+        }
+
         public async Task<IActionResult> Index()
         {
             BicycleViewModel viewModel = new BicycleViewModel
             {
-                Bicycles = await _context.Bicycles.ToListAsync()
-        };
+                Bicycles = User.IsInRole("Admin")
+                ? await _context.Bicycles.ToListAsync()
+                : await _context.Bicycles.Where(e => !_context.Set<UserBicycle>().Any(ub => ub.BicycleId == e.Id && ub.IsBooked)).ToListAsync()
+            };
             return View(viewModel);
         }
-        
-        [HttpPost] 
-        public async Task<IActionResult>  Filter(BicycleViewModel bView)
+
+        [HttpPost]
+        public async Task<IActionResult> Filter(BicycleViewModel bView)
 
         {
             BicycleViewModel viewModel = new BicycleViewModel
             {
-                Bicycles = await _context.Bicycles.Where(e=>e.Brand == bView.Bike.Brand).ToListAsync()
+                Bicycles = await _context.Bicycles.Where(e => e.Brand == bView.Bike.Brand).ToListAsync()
             };
             return View(nameof(Index), viewModel);
         }
@@ -72,7 +94,7 @@ namespace Iznajmljivanje_bicikala.Controllers
         }
 
         // GET: Bicycles/Create
-        [Authorize (Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -166,8 +188,9 @@ namespace Iznajmljivanje_bicikala.Controllers
 
             return View(bicycle);
         }
-        [Authorize(Roles = "Admin")]
+
         // POST: Bicycles/Delete/5
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

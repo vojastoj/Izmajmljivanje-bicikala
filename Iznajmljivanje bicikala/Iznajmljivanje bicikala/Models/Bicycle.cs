@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 namespace Iznajmljivanje_bicikala.Models
 {
     public class Bicycle
-    {   
+    {
         public int Id { get; set; }
-       
+
         [Required]
+        [Display(Name = "Marka")]
         public string Brand { get; set; }
-        
+
         [Required]
+        [Display(Name = "Godina proizvodnje")]
         public int ProductionYear { get; set; }
 
-        public List<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+        public List<UserBicycle> UserBicycles { get; set; }
     }
 }
